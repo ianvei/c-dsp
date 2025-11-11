@@ -1,0 +1,18 @@
+# Object files
+*.o
+
+# Executables
+a.out
+main
+*.exe
+
+# Debug files
+*.dSYM/
+*.stackdump
+
+# Build directories
+/bin/
+/build/
+/dist/
+
+dsp
