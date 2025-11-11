@@ -5,6 +5,9 @@
 a.out
 main
 *.exe
+*.csv
+*.wav
+phonebook
 
 # Debug files
 *.dSYM/
@@ -16,3 +19,4 @@ main
 /dist/
 
 dsp
+phonebook.c
