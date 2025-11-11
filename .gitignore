@@ -17,6 +17,6 @@ phonebook
 /bin/
 /build/
 /dist/
-
+*.asd
 dsp
 phonebook.c
