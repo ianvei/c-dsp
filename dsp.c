@@ -8,7 +8,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-const int HEADER_SIZE = 44; // Standard WAV header size
+const int HEADER_SIZE = 44;   // Standard WAV header size
 const int GRAIN_SIZE = 44100; // 1 second grain size at 44.1kHz
 
 // Function prototypes
@@ -68,33 +68,35 @@ int main(int argc, char *argv[])
     int numSamples = audioSize / sizeof(int16_t);
     int numGrains = numSamples / GRAIN_SIZE;
     int *grainOrder = (int *)malloc(numGrains * sizeof(int));
-    for(int i=0; i < numGrains; i++){
+    for (int i = 0; i < numGrains; i++)
+    {
         grainOrder[i] = i;
     }
     shuffle(grainOrder, numGrains);
-    int16_t *grain = (int16_t*)malloc(GRAIN_SIZE * sizeof(int16_t));
-    for(int i = 0; i< numGrains; i++){
+    int16_t *grain = (int16_t *)malloc(GRAIN_SIZE * sizeof(int16_t));
+    for (int i = 0; i < numGrains; i++)
+    {
         fseek(inputFile, HEADER_SIZE + grainOrder[i] * GRAIN_SIZE * sizeof(int16_t), SEEK_SET);
         fread(grain, sizeof(int16_t), GRAIN_SIZE, inputFile);
         // applyHannEnvelope(grain);
         int effect = rand() % 5;
         switch (effect)
-                {
-            case 0:
-                playNormal(outputFile, grain, GRAIN_SIZE);
-                break;
-            case 1:
-                playReverse(outputFile, grain, GRAIN_SIZE);
-                break;
-            case 2:
-                playFast(outputFile, grain, GRAIN_SIZE);
-                break;
-            case 3:
-                playSlow(outputFile, grain, GRAIN_SIZE);
-                break;
-            case 4:
-                playRepeated(outputFile, grain, GRAIN_SIZE);
-                break;
+        {
+        case 0:
+            playNormal(outputFile, grain, GRAIN_SIZE);
+            break;
+        case 1:
+            playReverse(outputFile, grain, GRAIN_SIZE);
+            break;
+        case 2:
+            playFast(outputFile, grain, GRAIN_SIZE);
+            break;
+        case 3:
+            playSlow(outputFile, grain, GRAIN_SIZE);
+            break;
+        case 4:
+            playRepeated(outputFile, grain, GRAIN_SIZE);
+            break;
         }
     }
     free(grain);
@@ -120,14 +122,20 @@ void shuffle(int *array, int n)
 
 void applyHannEnvelope(int16_t *grain)
 {
-    for(int j = 0; j < GRAIN_SIZE; j++){
-        double multiplier = 0.5 * (1 - cos(2*M_PI*j/(GRAIN_SIZE-1)));
+    for (int j = 0; j < GRAIN_SIZE; j++)
+    {
+        double multiplier = 0.5 * (1 - cos(2 * M_PI * j / (GRAIN_SIZE - 1)));
         grain[j] = (int16_t)(grain[j] * multiplier);
     }
 }
 
 void playNormal(FILE *outputFile, int16_t *grain, int grainSize)
 {
+    int randomChange = 1 + rand() % 4;
+    if (randomChange <= 2)
+    {
+        applyHannEnvelope(grain);
+    }
     fwrite(grain, sizeof(int16_t), grainSize, outputFile);
 }
 
@@ -141,7 +149,7 @@ void playReverse(FILE *outputFile, int16_t *grain, int grainSize)
 
 void playFast(FILE *outputFile, int16_t *grain, int grainSize)
 {
-    int skip = 2;  // Play at 2x speed
+    int skip = 2; // Play at 2x speed
     for (int j = 0; j < grainSize; j += skip)
     {
         fwrite(&grain[j], sizeof(int16_t), 1, outputFile);
@@ -150,7 +158,7 @@ void playFast(FILE *outputFile, int16_t *grain, int grainSize)
 
 void playSlow(FILE *outputFile, int16_t *grain, int grainSize)
 {
-    int stretch = 2;  // Play at 0.5x speed
+    int stretch = 2; // Play at 0.5x speed
     for (int j = 0; j < grainSize; j++)
     {
         for (int s = 0; s < stretch; s++)
@@ -162,9 +170,13 @@ void playSlow(FILE *outputFile, int16_t *grain, int grainSize)
 
 void playRepeated(FILE *outputFile, int16_t *grain, int grainSize)
 {
-    int repeatCount = 1 + rand() % 4;  // 1-4 repeats
+    int repeatCount = 1 + rand() % 4; // 1-4 repeats
     for (int r = 0; r < repeatCount; r++)
     {
+        if (repeatCount <= 2)
+        {
+            applyHannEnvelope(grain);
+        }
         fwrite(grain, sizeof(int16_t), grainSize, outputFile);
     }
 }
